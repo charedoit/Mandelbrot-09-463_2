@@ -1,6 +1,7 @@
 package ru.gr0946x.ui.animation;
 
 import ru.gr0946x.Converter;
+import ru.gr0946x.ui.RightClickDrag;
 import ru.gr0946x.ui.SelectablePanel;
 import ru.gr0946x.ui.fractals.Fractal;
 import ru.gr0946x.ui.fractals.Mandelbrot;
@@ -16,7 +17,6 @@ import static java.lang.Math.*;
 public class AnimationWindow extends JFrame {
 
     private static final int MAX_KEY_FRAMES = 50;
-    private static final int FPS = 15;
 
     private final SelectablePanel mainPanel;
     public final Painter painter;
@@ -48,6 +48,9 @@ public class AnimationWindow extends JFrame {
 
         mainPanel = new SelectablePanel(painter);
         mainPanel.setBackground(Color.WHITE);
+
+        new RightClickDrag(mainPanel, conv);
+
         mainPanel.addSelectListener((r) -> {
             var xMin = conv.xScr2Crt(r.x);
             var xMax = conv.xScr2Crt(r.x + r.width);
@@ -94,7 +97,7 @@ public class AnimationWindow extends JFrame {
         durationSlider.setPaintLabels(true);
         durationLabel = new JLabel("Длительность: 10 сек");
 
-        durationSlider.addChangeListener(e -> {
+        durationSlider.addChangeListener(_ -> {
             durationLabel.setText("Длительность: " + durationSlider.getValue() + " сек");
         });
 
@@ -119,7 +122,7 @@ public class AnimationWindow extends JFrame {
             }
         });
 
-        btnCreateFrame.addActionListener(e -> {
+        btnCreateFrame.addActionListener(_ -> {
             VideoExportManager.export(
                     this,
                     listModel,
@@ -129,6 +132,40 @@ public class AnimationWindow extends JFrame {
             );
         });
 
+        mainPanel.addMouseWheelListener(e -> {
+            int rotation = e.getWheelRotation();
+
+            double factor;
+            if (rotation < 0) {
+                factor = 0.8;
+            } else {
+                factor = 1.2;
+            }
+
+            double xMin = conv.xScr2Crt(0);
+            double xMax = conv.xScr2Crt(mainPanel.getWidth());
+            double yMin = conv.yScr2Crt(mainPanel.getHeight());
+            double yMax = conv.yScr2Crt(0);
+
+            double mouseX = conv.xScr2Crt(e.getX());
+            double mouseY = conv.yScr2Crt(e.getY());
+
+            double newWidth = (xMax - xMin) * factor;
+            double newHeight = (yMax - yMin) * factor;
+
+            double tX = (mouseX - xMin) / (xMax - xMin);
+            double tY = (mouseY - yMin) / (yMax - yMin);
+
+            double newXMin = mouseX - newWidth * tX;
+            double newXMax = mouseX + newWidth * (1 - tX);
+            double newYMin = mouseY - newHeight * tY;
+            double newYMax = mouseY + newHeight * (1 - tY);
+
+            conv.setXShape(newXMin, newXMax);
+            conv.setYShape(newYMin, newYMax);
+
+            mainPanel.repaint();
+        });
 
         setContent();
     }

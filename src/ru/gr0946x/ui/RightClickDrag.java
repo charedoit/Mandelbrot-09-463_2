@@ -1,6 +1,7 @@
 package ru.gr0946x.ui;
 
 import ru.gr0946x.Converter;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -38,7 +39,6 @@ public class RightClickDrag {
                     int width = targetPanel.getWidth();
                     int height = targetPanel.getHeight();
 
-                    // Получаем текущие границы из Converter
                     double xMin = converter.xScr2Crt(0);
                     double xMax = converter.xScr2Crt(width);
                     double yMin = converter.yScr2Crt(height);
@@ -50,7 +50,6 @@ public class RightClickDrag {
                     double dxWorld = dx * (worldWidth / width);
                     double dyWorld = -dy * (worldHeight / height);
 
-                    // Сдвигаем границы
                     converter.setXShape(xMin - dxWorld, xMax - dxWorld);
                     converter.setYShape(yMin - dyWorld, yMax - dyWorld);
 
