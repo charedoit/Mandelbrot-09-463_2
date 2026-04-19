@@ -10,16 +10,16 @@ import ru.gr0946x.ui.painting.Painter;
 import javax.swing.*;
 import javax.swing.event.ListDataListener;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 
 import static java.lang.Math.*;
 
 public class AnimationWindow extends JFrame {
 
     private static final int MAX_KEY_FRAMES = 50;
+    private static final int FPS = 15;
 
     private final SelectablePanel mainPanel;
-    private final Painter painter;
+    public final Painter painter;
     private final Fractal mandelbrot;
     private final Converter conv;
 
@@ -88,7 +88,18 @@ public class AnimationWindow extends JFrame {
             }
         });
 
+        durationSlider = new JSlider(5, 15, 10);
+        durationSlider.setMajorTickSpacing(5);
+        durationSlider.setPaintTicks(true);
+        durationSlider.setPaintLabels(true);
+        durationLabel = new JLabel("Длительность: 10 сек");
+
+        durationSlider.addChangeListener(e -> {
+            durationLabel.setText("Длительность: " + durationSlider.getValue() + " сек");
+        });
+
         btnCreateFrame = new JButton("Создать видео");
+
         btnCreateFrame.setEnabled(false);
         listModel.addListDataListener(new ListDataListener() {
             private void updateButton() {
@@ -108,36 +119,22 @@ public class AnimationWindow extends JFrame {
             }
         });
 
-        durationSlider = new JSlider(5, 30, 10);
-        durationSlider.setMajorTickSpacing(5);
-        durationSlider.setPaintTicks(true);
-        durationSlider.setPaintLabels(true);
-        durationLabel = new JLabel("Длительность: 10 сек");
-
-        durationSlider.addChangeListener(e -> {
-            durationLabel.setText("Длительность: " + durationSlider.getValue() + " сек");
+        btnCreateFrame.addActionListener(e -> {
+            VideoExportManager.export(
+                    this,
+                    listModel,
+                    durationSlider.getValue(),
+                    mainPanel.getWidth(),
+                    mainPanel.getHeight()
+            );
         });
+
 
         setContent();
     }
 
     private ImageIcon createImage() {
-        int width = 160;
-        int height = 120;
-        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics g = img.getGraphics();
-
-        int oldW = painter.getWidth();
-        int oldH = painter.getHeight();
-
-        painter.setWidth(width);
-        painter.setHeight(height);
-        painter.paint(g);
-
-        painter.setWidth(oldW);
-        painter.setHeight(oldH);
-
-        return new ImageIcon(img);
+        return new ImageIcon(ImageConverter.render(160, 120, painter));
     }
 
     private void setContent() {

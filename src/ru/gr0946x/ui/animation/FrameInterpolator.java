@@ -5,12 +5,10 @@ import java.util.List;
 
 public class FrameInterpolator {
 
-    public record FrameState(double xMin, double xMax, double yMin, double yMax) {}
-
-    public static List<FrameState> generateStates(List<KeyFrame> keyFrames, int duration) {
+    public static List<FrameState> generateStates(List<KeyFrame> keyFrames, int duration, int fps) {
         List<FrameState> states = new ArrayList<>();
 
-        int totalFramesCount = duration * 30;
+        int totalFramesCount = duration * fps;
         int intervals = keyFrames.size() - 1;
         int framesPerInterval = totalFramesCount / intervals;
 
