@@ -1,4 +1,4 @@
-package ru.gr0946x.ui;
+package ru.gr0946x.ui.saveAndOpen;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -9,9 +9,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 import ru.gr0946x.Converter;
-import ru.gr0946x.ui.fractals.ColorFunction;
-import ru.gr0946x.ui.fractals.Fractal;
-import ru.gr0946x.ui.painting.FractalPainter;
 import ru.gr0946x.ui.painting.Painter;
 
 public class FractalSaver {
@@ -42,17 +39,13 @@ public class FractalSaver {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Сохранить фрактал");
 
-        FileNameExtensionFilter fracFilter = new FileNameExtensionFilter(
-                SaveFormat.FRAC.getDescription(), SaveFormat.FRAC.getExtension());
-        FileNameExtensionFilter jpgFilter = new FileNameExtensionFilter(
-                SaveFormat.JPG.getDescription(), SaveFormat.JPG.getExtension());
-        FileNameExtensionFilter pngFilter = new FileNameExtensionFilter(
-                SaveFormat.PNG.getDescription(), SaveFormat.PNG.getExtension());
+        FileNameExtensionFilter filterFrac = fracFilter();
 
-        fileChooser.addChoosableFileFilter(fracFilter);
-        fileChooser.addChoosableFileFilter(jpgFilter);
-        fileChooser.addChoosableFileFilter(pngFilter);
-        fileChooser.setFileFilter(fracFilter);
+        fileChooser.addChoosableFileFilter(filterFrac);
+        fileChooser.addChoosableFileFilter(jpgFilter());
+        fileChooser.addChoosableFileFilter(pngFilter());
+
+        fileChooser.setFileFilter(filterFrac);
 
         if (fileChooser.showSaveDialog(parent) != JFileChooser.APPROVE_OPTION) {
             return false;
@@ -104,13 +97,13 @@ public class FractalSaver {
         return SaveFormat.FRAC;
     }
 
-    private static FileNameExtensionFilter fracFilter(JFileChooser fc) {
+    public static FileNameExtensionFilter fracFilter() {
         return new FileNameExtensionFilter(SaveFormat.FRAC.getDescription(), SaveFormat.FRAC.getExtension());
     }
-    private static FileNameExtensionFilter jpgFilter(JFileChooser fc) {
+    public static FileNameExtensionFilter jpgFilter() {
         return new FileNameExtensionFilter(SaveFormat.JPG.getDescription(), SaveFormat.JPG.getExtension());
     }
-    private static FileNameExtensionFilter pngFilter(JFileChooser fc) {
+    public static FileNameExtensionFilter pngFilter() {
         return new FileNameExtensionFilter(SaveFormat.PNG.getDescription(), SaveFormat.PNG.getExtension());
     }
 
@@ -163,9 +156,7 @@ public class FractalSaver {
 
     private static boolean saveAsImage(File file, Painter painter, Converter conv, String format) throws IOException {
         BufferedImage image = renderFractalToImage(painter);
-
         addCoordinateOverlay(image, conv);
-
         return ImageIO.write(image, format, file);
     }
 
@@ -177,10 +168,9 @@ public class FractalSaver {
         Graphics2D g2d = image.createGraphics();
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
         painter.paint(g2d);
-
         g2d.dispose();
+
         return image;
     }
 
